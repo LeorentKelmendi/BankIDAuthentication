@@ -2,6 +2,9 @@
 
 namespace Leo\BankIdAuthentication;
 
+use Leo\BankIdAuthentication\bankIdStatusTransformer;
+use SoapClient;
+
 class BankID
 {
 
@@ -32,9 +35,10 @@ class BankID
 
     public function __construct()
     {
+
         $this->context_options['ssl'] = [
-            'local_cert'          => 'cert',
-            'cafile'              => 'ca-cert',
+            'local_cert'          => $this->config() . "/certs/certname.pem",
+            'cafile'              => $this->config() . "/certs/ca.pem",
             'verify_peer'         => true,
             'verify_peer_name'    => true,
             'verify_depth'        => 5,
@@ -44,13 +48,27 @@ class BankID
             'ciphers'             => 'ALL!EXPORT!EXPORT40!EXPORT56!aNULL!LOW!RC4',
         ];
 
-        $this->wsdl = 'read from config';
+        $this->wsdl = 'https://appapi.test.bankid.com/rp/v4?wsdl';
 
         $this->ssl_context = stream_context_create($this->context_options);
 
-        $this->soapClient = new SoapClient($this->wsdl,[
-            'stream_context'=>$this->ssl_context;
+        $this->bankIdTransformer = new bankIdStatusTransformer;
+
+        $this->soapClient = new SoapClient($this->wsdl, [
+            'stream_context' => $this->ssl_context,
         ]);
+    }
+
+    /**
+     * @param $ssn
+     */
+    public function authenticate($ssn)
+    {
+
+    }
+    private function config()
+    {
+        return dirname(__FILE__);
     }
 
 }
