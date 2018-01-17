@@ -27,6 +27,14 @@ class BankID
      * @var mixed
      */
     protected $bankIdTransformer;
+    /**
+     * @var mixed
+     */
+    private $localCert;
+    /**
+     * @var mixed
+     */
+    private $caCert;
 
     /**
      * @var mixed
@@ -35,10 +43,13 @@ class BankID
 
     public function __construct()
     {
+        $this->localCert = $this->config() . "/certs/certname.pem";
+
+        $this->caCert = $this->config() . "/certs/appapi.test.bankid.com.pem";
 
         $this->context_options['ssl'] = [
-            'local_cert'          => $this->config() . "/certs/certname.pem",
-            'cafile'              => $this->config() . "/certs/appapi.test.bankid.com.pem",
+            'local_cert'          => $this->localCert,
+            'cafile'              => $this->caCert,
             'verify_peer'         => true,
             'verify_peer_name'    => true,
             'verify_depth'        => 5,
@@ -54,11 +65,22 @@ class BankID
 
         $this->bankIdTransformer = new bankIdStatusTransformer;
 
+        if (!file_exists($this->localCert)) {
+
+            throw new Exception("Unable to load your BankID Certificate" . $this->localCert, 2);
+        }
+        if (!file_exists($this->caCert)) {
+
+            throw new Exception("Unable to load your BankID Certificate" . $this->caCert, 3);
+        }
+        if ($this->ssl_context === null) {
+
+            throw new Exception("Failed to create stream context for communication with bankID server(" . $this->ssl_context . ")");
+        }
         $this->soapClient = new SoapClient($this->wsdl, [
             'stream_context' => $this->ssl_context,
         ]);
 
-        var_dump($this->soapClient->__getFunctions());
     }
 
     /**
@@ -66,7 +88,7 @@ class BankID
      */
     public function authenticate($ssn)
     {
-
+        return $this->soapClient->authenticate($ssn);
     }
     private function config()
     {
