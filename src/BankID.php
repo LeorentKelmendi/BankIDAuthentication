@@ -38,11 +38,11 @@ class BankID
 
         $this->context_options['ssl'] = [
             'local_cert'          => $this->config() . "/certs/certname.pem",
-            'cafile'              => $this->config() . "/certs/ca.pem",
+            'cafile'              => $this->config() . "/certs/appapi.test.bankid.com.pem",
             'verify_peer'         => true,
             'verify_peer_name'    => true,
             'verify_depth'        => 5,
-            'peer_name'           => '',
+            'peer_name'           => 'appapi.test.bankid.com',
             'disable_compression' => true,
             'SNI_enabled'         => true,
             'ciphers'             => 'ALL!EXPORT!EXPORT40!EXPORT56!aNULL!LOW!RC4',
@@ -57,6 +57,8 @@ class BankID
         $this->soapClient = new SoapClient($this->wsdl, [
             'stream_context' => $this->ssl_context,
         ]);
+
+        var_dump($this->soapClient->__getFunctions());
     }
 
     /**
