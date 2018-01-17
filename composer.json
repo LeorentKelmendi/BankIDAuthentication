@@ -1,6 +1,18 @@
-"autoload": {
+{
+    "name": "leo/bankidauthentication",
+    "description": "Laravel Authentication using BANKID",
+    "license": "",
+    "authors": [
+        {
+            "name": "Leorent Kelmendi",
+            "email": "leorent@hotmail.com"
+        }
+    ],
+
+    "autoload": {
 
     "psr-4": {
         "Leo\\BankIdAuthentication\\": "src/"
     }
-},
+  }
+}
