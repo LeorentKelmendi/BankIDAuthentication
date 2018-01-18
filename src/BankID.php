@@ -2,7 +2,8 @@
 
 namespace Leo\BankIdAuthentication;
 
-use Leo\BankIdAuthentication\bankIdStatusTransformer;
+use Exception;
+use Leo\BankIdAuthentication\BankidTransformer;
 use SoapClient;
 
 class BankID
@@ -63,7 +64,7 @@ class BankID
 
         $this->ssl_context = stream_context_create($this->context_options);
 
-        $this->bankIdTransformer = new bankIdStatusTransformer;
+        $this->bankIdTransformer = new BankidTransformer;
 
         if (!file_exists($this->localCert)) {
 
@@ -88,7 +89,39 @@ class BankID
      */
     public function authenticate($ssn)
     {
-        return $this->soapClient->authenticate($ssn);
+        try {
+
+            $params = $this->bankIdTransformer->makeAuthenticateParams($ssn);
+
+            $response = $this->soapClient->Authenticate($params);
+
+        } catch (Exception $e) {
+
+            var_dump($e->getMessage());exit;
+        }
+
+        if (!isset($response->orderRef) || !isset($response->autoStartToken)) {
+
+            throw new Exception("Wrong response from BANKID api");
+        }
+
+        return $this->bankIdTransformer->parseResponse($response);
+    }
+    /**
+     * @param $orderParams
+     * @return mixed
+     */
+    public function collect($orderParams)
+    {
+
+        try {
+            $response = $this->soapClient->Collect($orderParams['orderRef']);
+
+        } catch (Exception $e) {
+            var_dump($e->getMessage());exit;
+        }
+
+        return $response;
     }
     private function config()
     {

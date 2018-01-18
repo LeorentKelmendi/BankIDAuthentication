@@ -1,10 +1,25 @@
 <?php
 
 require __DIR__ . "/vendor/autoload.php";
-
 use Leo\BankIdAuthentication\BankID;
 
-$S = new BankID;
+class Controller
+{
+    /**
+     * @var mixed
+     */
+    protected $response;
 
-var_dump($S->authenticate('199206142324'));
-exit;
+    /**
+     * @var mixed
+     */
+    protected $status;
+    /**
+     * @param $ssn
+     */
+    public function __construct($ssn, BankID $bankid)
+    {
+        $this->response = $bankid->authenticate($ssn);
+    }
+
+}
