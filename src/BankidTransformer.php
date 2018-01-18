@@ -26,10 +26,10 @@ class BankidTransformer
             'progressStatus' => $response->progressStatus,
             'signature'      => $response->signature,
             'userInfo'       => [
-                'name'           => $userInfo['givenName'],
-                'surname'        => $userInfo['surname'],
-                'fullname'       => $userInfo['name'],
-                'personalNumber' => $userInfo['personalNumber'],
+                'name'           => $userInfo->givenName,
+                'surname'        => $userInfo->surname,
+                'fullname'       => $userInfo->name,
+                'personalNumber' => $userInfo->personalNumber,
 
             ],
         ];

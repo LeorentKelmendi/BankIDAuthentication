@@ -34,11 +34,19 @@ class Controller
     {
         $response = $this->service->collect($this->response['orderRef']);
 
-        var_dump($response);
+        return $response;
     }
 
 }
 
 $c = new Controller('195407308575', new BankID);
 
-$c->checkStatus();
+sleep(10);
+
+do {
+
+    $response = $c->checkStatus()['progressStatus'];
+
+} while ($response !== 'COMPLETE');
+
+var_dump($response);exit;
