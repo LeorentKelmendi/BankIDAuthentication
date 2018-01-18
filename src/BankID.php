@@ -111,11 +111,17 @@ class BankID
      * @param $orderParams
      * @return mixed
      */
-    public function collect($orderParams)
+    public function collect($orderRef)
     {
 
         try {
-            $response = $this->soapClient->Collect($orderParams['orderRef']);
+            $response = $this->soapClient->Collect($orderRef);
+
+            if (!isset($response->progressStatus) || !isset($response->signature)) {
+                throw new Exception("BankID bad response on collect status");
+            }
+
+            return $this->bankIdTransformer->transformCollect($response);
 
         } catch (Exception $e) {
             var_dump($e->getMessage());exit;
