@@ -14,5 +14,15 @@
     "psr-4": {
         "Leo\\BankIdAuthentication\\": "src/"
     }
-  }
+  },
+  "extra": {
+    "laravel": {
+        "providers": [
+            "Leo\\BankIdAuthentication\\BankIdServiceProvider"
+        ],
+        "aliases": {
+            "BankID": "Leo\\BankIdAuthentication\\BankIDFacade"
+        }
+    }
+}
 }

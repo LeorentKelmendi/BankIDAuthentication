@@ -5,6 +5,7 @@ namespace Leo\BankIdAuthentication;
 use Exception;
 use Leo\BankIdAuthentication\BankidTransformer;
 use SoapClient;
+use SoapFault;
 
 class BankID
 {
@@ -112,7 +113,10 @@ class BankID
 
         } catch (Exception $e) {
 
-            var_dump($e->getMessage());exit;
+            if ($e instanceof SoapFault) {
+                throw Exception($e->getMessage());
+            }
+            throw new Exception('Something went wrong: ' . $e->getMessage());
         }
 
         if (!isset($response->orderRef) || !isset($response->autoStartToken)) {
@@ -147,10 +151,53 @@ class BankID
             return $this->bankIdTransformer->transformCollect($response);
 
         } catch (Exception $e) {
-            var_dump($e->getMessage());exit;
+
+            if ($e instanceof SoapFault) {
+                throw Exception($e->getMessage());
+            }
+            throw new Exception('Something went wrong: ' . $e->getMessage());
         }
 
         return $response;
+    }
+
+    /**
+     * @param $status
+     */
+    private function statusPool($status)
+    {
+
+        switch ($status) {
+            case self::STATUS_ALREADY_IN_PROGRESS:
+                return 'Action cancelled. Please try again.';
+                break;
+            case 'COMPLETE':
+                return self::STATUS_COMPLETE;
+                break;
+            case self::STATUS_OUTSTANDING_TRANSACTION:
+                return 'Start your BankId App';
+                break;
+            case self::STATUS_NO_CLIENT:
+                return 'Start your BankId App';
+                break;
+            case self::STATUS_INTERNAL_ERROR:
+                return 'Internal error. Please try again. ';
+                break;
+            case self::STATUS_USER_CANCEL:
+                return 'Action cancelled';
+                break;
+            case self::STATUS_USER_SIGN:
+                return 'Enter your security code in the BankID app
+                    and select Identify or Sign';
+                break;
+            case self::STATUS_STARTED:
+                return 'Searching for BankID:s, it may take a little
+                    while…';
+                break;
+            default:
+                return 'Internal Failure. Update BankId and try again';
+                break;
+        }
     }
     private function config()
     {
