@@ -36,17 +36,24 @@ class Controller
 
         return $response;
     }
+    /**
+     * @return mixed
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 
 }
 
 $c = new Controller('195407308575', new BankID);
 
-sleep(10);
+$response = $c->checkStatus()['progressStatus'];
 
-do {
+while ($response !== BankID::STATUS_COMPLETE && $this->response['orderRef']) {
 
     $response = $c->checkStatus()['progressStatus'];
 
-} while ($response !== 'COMPLETE');
+}
 
 var_dump($response);exit;

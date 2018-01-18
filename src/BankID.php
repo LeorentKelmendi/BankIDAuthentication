@@ -42,6 +42,21 @@ class BankID
      */
     protected $wsdl;
 
+    const STATUS_ALREADY_IN_PROGRESS     = 'ALREADY_IN_PROGRESS';
+    const STATUS_COMPLETE                = 'COMPLETE';
+    const STATUS_OUTSTANDING_TRANSACTION = 'OUTSTANDING_TRANSACTION';
+    const STATUS_NO_CLIENT               = 'NO_CLIENT';
+    const STATUS_RETRY                   = 'RETRY';
+    const STATUS_INTERNAL_ERROR          = 'INTERNAL_ERROR';
+    const STATUS_USER_CANCEL             = 'USER_CANCEL';
+    const STATUS_EXPIRED_TRANSACTION     = 'EXPIRED_TRANSACTION';
+    const STATUS_USER_SIGN               = 'USER_SIGN';
+    const STATUS_CLIENT_ERR              = 'CLIENT_ERR';
+    const STATUS_STARTED                 = 'STARTED';
+    const STATUS_START_FAILED            = 'START_FAILED';
+    const STATUS_INVALID_PARAMETERS      = 'INVALID_PARAMETERS';
+    const STATUS_CANCELLED               = 'USER_CANCEL';
+
     public function __construct()
     {
         $this->localCert = $this->config() . "/certs/certname.pem";
@@ -121,6 +136,14 @@ class BankID
                 throw new Exception("BankID bad response on collect status");
             }
 
+            $status = $this->bankIdTransformer->transformCollect($response);
+
+            if ($status['progressStatus'] === self::STATUS_COMPLETE) {
+
+                //Redirect authenticated user
+                $this->redirect();
+            }
+
             return $this->bankIdTransformer->transformCollect($response);
 
         } catch (Exception $e) {
@@ -132,6 +155,11 @@ class BankID
     private function config()
     {
         return dirname(__FILE__);
+    }
+    private function redirect()
+    {
+
+        header("Location: ", "/dashboard.php");
     }
 
 }
