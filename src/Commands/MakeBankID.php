@@ -3,6 +3,11 @@
 namespace Leo\BankIdAuthentication\Commands;
 
 use Illuminate\Console\Command;
+use Leo\BankIDAuthenticaton\BlockStack;
+use Leo\BankIDAuthenticaton\Config;
+use Leo\BankIDAuthenticaton\Generator;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeBankID extends Command
 {
