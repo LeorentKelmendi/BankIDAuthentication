@@ -2,17 +2,14 @@
 
 namespace Leo\BankIdAuthentication\Commands;
 
+use File;
 use Illuminate\Console\Command;
-use Leo\BankIDAuthenticaton\BlockStack;
-use Leo\BankIDAuthenticaton\Config;
-use Leo\BankIDAuthenticaton\Generator;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 
 class MakeBankID extends Command
 {
 
     /**
+     *
      * @var string
      */
     protected $name = "make:BankidView";
@@ -22,44 +19,73 @@ class MakeBankID extends Command
      */
     protected $description = "Create a new view to provide login fields for BANKID";
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle()
     {
-
-        $generator = new Generator($this->getConfig());
-
-        $generator->generate((new BlockStack)->build($this->input));
-
-        $this->info("BankID login view created successfully");
+        // $view = $this->argument('view');
+        $view = "loginbankID";
+        $path = $this->viewPath($view);
+        $this->createDir($path);
+        if (File::exists($path)) {
+            $this->error("File {$path} already exists!");
+            return;
+        }
+        File::put($path, $this->generateHTML());
+        $this->info("File {$path} created.");
     }
 
-    public function getConfig()
+    protected function generateHTML()
     {
 
-        return (new Config)
-            ->setName($this->argument('name'))
-            ->setExtension($this->option('extension'))
-            ->setResource($this->option('resource'))
-            ->setVerbs(...$this->option('verb'));
+        return '<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Login BankID</title>
+                </head>
+                <body>
+                  <div class="container">
+                        <div class="login-container">
+                                <div id="output"></div>
+                                <div class="avatar"></div>
+                                <div class="form-box">
+                                    <form action="" method="">
+                                        <input name="user" type="text" placeholder="YYYY-MM-DD-NNNN">
+                                        <button class="btn btn-info btn-block login" type="submit">Login</button>
+                                    </form>
+                                </div>
+                            </div>
+                    </div>
+                </body>
+         </html>';
     }
 
-    protected function getOptions()
+    /**
+     * @param $path
+     */
+    public function createDir($path)
     {
-        return [
-            ['extension', null, InputOption::VALUE_OPTIONAL, 'The extension of the generated view.', 'blade.php'],
-            ['resource', 'r', InputOption::VALUE_NONE, 'Whether or not a RESTful resource should be created.'],
-            ['verb', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The HTTP verb(s) to generate views for.', ['index', 'show', 'create', 'edit']],
-            ['section', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'A list of "@section"s to define in the created view(s).'],
-            ['extends', null, InputOption::VALUE_OPTIONAL, 'The view to "@extend" from the created view(s).'],
-            ['with-yields', 'y', InputOption::VALUE_NONE, 'Whether or not to add all "@yield" sections from extended template (if "--extends" was provided)'],
-            ['with-stacks', 's', InputOption::VALUE_NONE, 'Whether or not to add all "@stacks" from extended template as @push (if "--extends" was provided)'],
-        ];
+        $dir = dirname($path);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
     }
-
-    protected function getArguments()
+    /**
+     * @param $view
+     */
+    public function viewPath($view)
     {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the view to create.'],
-        ];
+        $view = str_replace('.', '/', $view) . '.blade.php';
+        $path = "resources/views/{$view}";
+        return $path;
     }
-
 }

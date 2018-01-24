@@ -2,5 +2,5 @@
 
 Route::get('/loginBankID', function () {
 
-    return 'test';
+    return view('loginbankID');
 });
