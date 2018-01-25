@@ -203,10 +203,5 @@ class BankID
     {
         return dirname(__FILE__);
     }
-    private function redirect()
-    {
-
-        header("Location: ", "/dashboard.php");
-    }
 
 }
