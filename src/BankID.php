@@ -84,15 +84,15 @@ class BankID
 
         if (!file_exists($this->localCert)) {
 
-            throw new Exception("Unable to load your BankID Certificate" . $this->localCert, 2);
+            throw new \Exception("Unable to load your BankID Certificate" . $this->localCert, 2);
         }
         if (!file_exists($this->caCert)) {
 
-            throw new Exception("Unable to load your BankID Certificate" . $this->caCert, 3);
+            throw new \Exception("Unable to load your BankID Certificate" . $this->caCert, 3);
         }
         if ($this->ssl_context === null) {
 
-            throw new Exception("Failed to create stream context for communication with bankID server(" . $this->ssl_context . ")");
+            throw new \Exception("Failed to create stream context for communication with bankID server(" . $this->ssl_context . ")");
         }
         $this->soapClient = new SoapClient($this->wsdl, [
             'stream_context' => $this->ssl_context,
@@ -111,9 +111,9 @@ class BankID
 
             $response = $this->soapClient->Authenticate($params);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
-            if ($e instanceof SoapFault) {
+            if ($e instanceof \SoapFault) {
                 throw Exception($e->getMessage());
             }
             throw new Exception('Something went wrong: ' . $e->getMessage());
@@ -124,7 +124,9 @@ class BankID
             throw new Exception("Wrong response from BANKID api");
         }
 
-        return $this->bankIdTransformer->parseResponse($response);
+        $parsedResponse = $this->bankIdTransformer->parseResponse($response);
+
+        return $parsedResponse;
     }
     /**
      * @param $orderParams
@@ -134,31 +136,26 @@ class BankID
     {
 
         try {
+
             $response = $this->soapClient->Collect($orderRef);
 
-            if (!isset($response->progressStatus) || !isset($response->signature)) {
+            if (!isset($response->progressStatus)) {
                 throw new Exception("BankID bad response on collect status");
             }
+            $response = $this->bankIdTransformer->transformCollect($response);
 
-            $status = $this->bankIdTransformer->transformCollect($response);
+            //need to do aditional check if authentication happens in speed of light
 
-            if ($status['progressStatus'] === self::STATUS_COMPLETE) {
+            return $this->statusPool($response['progressStatus']);
 
-                //Redirect authenticated user
-                $this->redirect();
+        } catch (\Exception $e) {
+
+            if ($e instanceof \SoapFault) {
+                var_dump($e->getMessage());
             }
-
-            return $this->bankIdTransformer->transformCollect($response);
-
-        } catch (Exception $e) {
-
-            if ($e instanceof SoapFault) {
-                throw Exception($e->getMessage());
-            }
-            throw new Exception('Something went wrong: ' . $e->getMessage());
+            throw new \Exception('Something went wrong: ' . $e->getMessage());
         }
 
-        return $response;
     }
 
     /**
@@ -193,6 +190,9 @@ class BankID
             case self::STATUS_STARTED:
                 return 'Searching for BankID:s, it may take a little
                     while…';
+                break;
+            case self::STATUS_OUTSTANDING_TRANSACTION:
+                return 'A login request has been sent, try again shortly';
                 break;
             default:
                 return 'Internal Failure. Update BankId and try again';

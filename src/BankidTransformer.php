@@ -21,17 +21,9 @@ class BankidTransformer
     public function transformCollect($response)
     {
 
-        $userInfo = $response->userInfo;
         return [
             'progressStatus' => $response->progressStatus,
-            'signature'      => $response->signature,
-            'userInfo'       => [
-                'name'           => $userInfo->givenName,
-                'surname'        => $userInfo->surname,
-                'fullname'       => $userInfo->name,
-                'personalNumber' => $userInfo->personalNumber,
 
-            ],
         ];
     }
 
