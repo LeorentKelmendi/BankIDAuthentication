@@ -3,6 +3,8 @@
 namespace Leo\BankIdAuthentication;
 
 use Illuminate\Support\ServiceProvider;
+use Leo\BankIdAuthentication\validator\Ssn;
+use Validator;
 
 class BankIdServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,10 @@ class BankIdServiceProvider extends ServiceProvider
         ], 'views');
 
         $this->app->make('Leo\BankIdAuthentication\BankidController');
+
+        Validator::resolver(function ($translator, $data, $rules, $messages) {
+            return new Ssn($translator, $data, $rules, $messages);
+        });
     }
 
     public function register()
