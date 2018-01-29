@@ -1,7 +1,7 @@
 {
-    "name": "leo/bankidauthentication",
+    "name": "leoRENT/bankidauthentication",
     "description": "Laravel Authentication using BANKID",
-    "license": "",
+    "license": "MIT",
     "authors": [
         {
             "name": "Leorent Kelmendi",
