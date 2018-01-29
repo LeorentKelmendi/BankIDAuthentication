@@ -36,7 +36,9 @@ class Ssn extends Validator
      */
     public function validateSsn($rule, $value)
     {
-
+        if (!$this->luhnAlgorithm($value)) {
+            return false;
+        }
         return $this->isValid($value);
     }
 
@@ -70,7 +72,27 @@ class Ssn extends Validator
             }
         }
         return true;
+    }
 
+    /**
+     * @param $ssnnumbers
+     */
+    private function luhnAlgorithm($ssnNumbers)
+    {
+        $ssnNumbers = array_reverse(str_split($ssnNumbers));
+        $sum        = 0;
+
+        foreach ($ssnNumbers as $key => $numbers) {
+
+            if ($key % 2) {
+                $numbers = $numbers * 2;
+            }
+
+            $sum += ($numbers > 10 ? $numbers - 9 : $numbers);
+
+        }
+
+        return ($sum % 10 === 0);
     }
 
     /**
@@ -79,7 +101,7 @@ class Ssn extends Validator
     private function cleanSsn($ssn)
     {
 
-        $ssn = preg_replace("/[^0-9]/", $ssn);
+        $ssn = preg_replace("/[^0-9]/", "", $ssn);
 
         $split = substr($ssn, 0, 2);
 

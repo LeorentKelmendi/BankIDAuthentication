@@ -18,7 +18,7 @@ class BankidController extends Controller
         $ssn = request()->input('ssn');
 
         $this->validate(request(), [
-            'ssn' => 'required|min:10|max:12',
+            'ssn' => 'required|min:10|max:12|ssn',
         ]);
 
         $login = new BankID;

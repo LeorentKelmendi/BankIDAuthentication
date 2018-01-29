@@ -6,7 +6,9 @@
     <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
-<style> body{padding-top:20px;} </style>
+<style>
+body{padding-top:20px;}
+</style>
 <body>
   <div class="container">
     <div class="row">
@@ -44,20 +46,31 @@
 
 
     let orderRef = null;
-
+    let errors = null;
     function submitRequest(){
 
         let ssn = $("input[name=ssn]").val();
 
-        console.log(ssn);
+        if(isValidSwedishPIN(ssn)){
+            console.log(ssn);
 
-        axios.post('/loginBankID', {ssn:ssn}).then(function(response){
+            axios.post('/loginBankID', {ssn:ssn}).then(function(response){
 
-            orderRef = response.data.data;
-            console.log(orderRef+'first');
+                if(response.data.data){
+                     orderRef = response.data.data;
+                }
+                console.log(response);
 
-        });
-       setTimeout(function (){ checkStatus(orderRef);}, 500);
+
+
+            }).catch(error =>{
+                $('#message').text(error.response.data.errors.ssn);
+            });
+
+           setTimeout(function (){ checkStatus(orderRef);}, 500);
+        }
+        $('#message').text('Invalid personal number.');
+
 
     }
 
@@ -78,6 +91,36 @@
         });
 
     }
+
+    function isValidSwedishPIN(pin) {
+    pin = pin
+        .replace(/\D/g, "")     // strip out all but digits
+        .split("")              // convert string to array
+        .reverse()              // reverse order for Luhn
+        .slice(0, 10);          // keep only 10 digits (i.e. 1977 becomes 77)
+
+    if (pin.length != 10) {
+        return false;
+    }
+
+    var sum = pin
+
+        .map(function(n) {
+            return Number(n);
+        })
+
+        .reduce(function(previous, current, index) {
+
+            if (index % 2) current *= 2;
+
+            if (current > 9) current -= 9;
+
+            return previous + current;
+        });
+
+
+    return 0 === sum % 10;
+};
 
 </script>
 </html>
