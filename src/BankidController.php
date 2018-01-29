@@ -7,7 +7,17 @@ use Leo\BankIdAuthentication\BankID;
 
 class BankidController extends Controller
 {
+    /**
+     * @var mixed
+     */
+    private $bankId;
 
+    public function __construct()
+    {
+
+        $this->bankId = new BankID;
+
+    }
     public function form()
     {
         return view('loginbankID');
@@ -21,20 +31,17 @@ class BankidController extends Controller
             'ssn' => 'required|min:10|max:12|ssn',
         ]);
 
-        $login = new BankID;
-
-        $response = $login->authenticate($ssn);
+        $response = $this->bankId->authenticate($ssn);
 
         return response()->json(['data' => $response['orderRef']]);
     }
 
     public function checkStatus()
     {
-        $login = new BankID;
 
         $orderRef = request()->get('order');
 
-        $message = $login->collect($orderRef);
+        $message = $this->bankId->collect($orderRef);
 
         return response()->json(['message' => $message]);
     }

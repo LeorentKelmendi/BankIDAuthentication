@@ -42,9 +42,6 @@ body{padding-top:20px;}
 
 
 <script type="text/javascript">
-
-
-
     let orderRef = null;
     let errors = null;
     function submitRequest(){
@@ -52,33 +49,21 @@ body{padding-top:20px;}
         let ssn = $("input[name=ssn]").val();
 
         if(isValidSwedishPIN(ssn)){
-            console.log(ssn);
-
             axios.post('/loginBankID', {ssn:ssn}).then(function(response){
-
                 if(response.data.data){
                      orderRef = response.data.data;
                 }
-                console.log(response);
-
-
-
             }).catch(error =>{
                 $('#message').text(error.response.data.errors.ssn);
             });
-
            setTimeout(function (){ checkStatus(orderRef);}, 500);
         }
         $('#message').text('Invalid personal number.');
-
-
     }
-
     function checkStatus(){
-        console.log(orderRef+'from post');
+
         axios.post('/login-status', {order:orderRef}).then(function(response){
 
-            console.log(response.data.message);
             $('#message').text(response.data.message);
 
             if(response.data.message === 'COMPLETE'){
