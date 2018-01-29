@@ -26,7 +26,6 @@ class BankidController extends Controller
 
     public function checkStatus()
     {
-
         $login = new BankID;
 
         $orderRef = request()->get('order');
