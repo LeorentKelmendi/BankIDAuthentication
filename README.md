@@ -1,5 +1,5 @@
 # Implementing Two Factor Authentication using BankID
-Leo Kelmendi @ Provideit.se
+Leo Kelmendi  
 
 # What is BankID System
 ![alt text](http://test.joche.se/wp-content/uploads/2014/01/BankID.png)
